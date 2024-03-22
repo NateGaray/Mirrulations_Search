@@ -40,29 +40,21 @@ def create_app(query_manager):
 
     @app.route('/search_documents')
     def search_documents():
-        response = {}
+
 
         # Obtains the search term and document id from a prior request
         search_term = request.args.get('term')
-        document_id = request.args.get('document_id')
+        docket_id = request.args.get('docket_id')
 
         # If a search term is not provided, the server will return this JSON and a 400 status code
         if not search_term:
+            response = {}
             response['error'] = {'code': 400,
                                  'message': 'Error: You must provide a term to be searched'}
             return jsonify(response), 400
 
-        # If the search term is valid, data will be ingested into the JSON response
-        response['data'] = {
-            'search_term': search_term,
-            'comments': []
-        }
-        response['data']['comments'].append({
-            "author": "Environmental Protection Agency",
-            "date_posted": "Dec 22, 2003",
-            "link": "https://www.regulations.gov/document/EPA-HQ-OAR-2003-0083-0794",
-            "document_id": document_id
-           })
+        response = query_manager.search_documents(search_term, docket_id)
+        
         return jsonify(response)
 
     @app.route('/search_comments')

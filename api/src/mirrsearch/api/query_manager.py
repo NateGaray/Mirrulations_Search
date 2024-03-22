@@ -43,5 +43,32 @@ class MongoQueryManager(QueryManager):
 
         return response
     
+    def search_documents(self, search_term, docket_id):
+        response = {}
+
+        # Uses the database manager to query the dockets
+        search = self.__manager.search_documents(search_term, docket_id)
+            
+        # If the search term is valid, data will be ingested into the JSON response
+        response['data'] = {
+            'search_term': search_term,
+            'docket_id': docket_id,
+                'documents': []
+            }
+
+        for doc in search:
+            title = doc['attributes']['title']
+            id = doc['id']
+            link = doc['links']['self']
+            response['data']['dockets'].append({
+                'title': title,
+                'id': id,
+                'link': link,
+            })
+                
+        # self.__manager.close_instance()
+
+        return response
+    
     def __init__(self, database_manager: DatabaseManager):
         self.__manager = database_manager

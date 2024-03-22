@@ -33,6 +33,21 @@ class MongoManager(DatabaseManager):
         self.close_instance()
 
         return results
+    
+    def search_documents(self, search_term, docket_id):
+        client = self.get_instance()
+        db = client['mongoSample']
+        documents = db.get_collection('document')
+
+        query = documents.find({'attributes.title': {'$regex': f'{search_term}', '$options': 'i'}, 'relationships.docket.data.id': docket_id})
+
+        results = []
+        for doc in query:
+            results.append(doc)
+
+        self.close_instance()
+
+        return results
 
     @staticmethod
     def get_instance():
