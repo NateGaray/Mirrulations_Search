@@ -46,27 +46,54 @@ class MongoQueryManager(QueryManager):
     def search_documents(self, search_term, docket_id):
         response = {}
 
-        # Uses the database manager to query the dockets
+        # Uses the database manager to query the documents
         search = self.__manager.search_documents(search_term, docket_id)
-            
+
         # If the search term is valid, data will be ingested into the JSON response
         response['data'] = {
             'search_term': search_term,
             'docket_id': docket_id,
-                'documents': []
-            }
+            'documents': []
+        }
 
-        for doc in search:
-            title = doc['attributes']['title']
-            id = doc['id']
-            link = doc['links']['self']
-            response['data']['dockets'].append({
+        for document in search:
+            title = document['attributes']['title']
+            date_posted = document['postedDate']
+            link = document['links']['self']
+            docket_id = document['docketId']
+            response['data']['documents'].append({
                 'title': title,
-                'id': id,
+                'date_posted': date_posted,
                 'link': link,
-            })
-                
-        # self.__manager.close_instance()
+                'docket_id': docket_id,
+                })
+
+        return response
+    
+    def search_comments(self, search_term, docket_id):
+        response = {}
+
+        # Uses the database manager to query the comments
+        search = self.__manager.search_comments(search_term, docket_id)
+
+        # If the search term is valid, data will be ingested into the JSON response
+        response['data'] = {
+            'search_term': search_term,
+            'docket_id': docket_id,
+            'comments': []
+        }
+
+        for comment in search:
+            author = comment['attributes']['lastName']
+            date_posted = comment['postedDate']
+            link = comment['links']['self']
+            docket_id = comment['docketId']
+            response['data']['comments'].append({
+                'author': author,
+                'date_posted': date_posted,
+                'link': link,
+                'docket_id': docket_id,
+                })
 
         return response
     
